@@ -3,9 +3,13 @@ version: '2'
 services:
     php:
         build: './php-fpm'
-        environment: {SYMFONY_ENV: 'dev'}
-        volumes: ['./symfony:/var/www:cached']
+        environment: 
+            SYMFONY_ENV: 'dev'
+        volumes: 
+            - './symfony:/var/www:cached'
     nginx:
         build: './nginx'
-        ports: ['8080:80']
-        volumes_from: ['php']
+        ports:
+            - '1337:80'
+        volumes_from: 
+            - 'php'

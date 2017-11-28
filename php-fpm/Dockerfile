@@ -2,7 +2,7 @@ FROM alpine:3.6
 
 LABEL maintainer="Vincent Composieux <vincent.composieux@gmail.com>"
 
-RUN apk add --update \
+RUN apk add --no-cache \
     php7-fpm \
     php7-apcu \
     php7-ctype \
@@ -26,24 +26,26 @@ RUN apk add --update \
     php7-tokenizer \
     php7-session \
     php7-xdebug \
+    php7-simplexml \
     make \
-    curl
+    curl \
+    shadow
 
 RUN rm -rf /var/cache/apk/* \
     && rm -rf /tmp/* \
     && rm /etc/php7/php-fpm.d/* \
     && mkdir -p /var/log/php \
-    && addgroup -g 82 -S www-data \
-    && adduser -u 82 -D -S -G www-data www-data
+    && addgroup -g 1000 -S www-data \
+    && adduser -u 1000 -D -S -G www-data www-data
 
 RUN curl --insecure https://getcomposer.org/composer.phar -o /usr/bin/composer && chmod +x /usr/bin/composer
 
+COPY entrypoint.sh /entrypoint.sh
 COPY symfony.ini /etc/php7/php-fpm.d/symfony.ini
 COPY symfony.ini /etc/php7/cli/conf.d/symfony.ini
-
 COPY symfony.pool.conf /etc/php7/php-fpm.d/symfony.pool.conf
 
-CMD ["php-fpm7", "-F"]
+ENTRYPOINT /entrypoint.sh
 
 WORKDIR /var/www
 EXPOSE 9000
