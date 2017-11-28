@@ -25,19 +25,25 @@ RUN apk add --update \
     php7-phar \
     php7-tokenizer \
     php7-session \
+    php7-xdebug \
     make \
     curl
 
-RUN rm -rf /var/cache/apk/* && rm -rf /tmp/*
+RUN rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/* \
+    && rm /etc/php7/php-fpm.d/* \
+    && mkdir -p /var/log/php \
+    && addgroup -g 82 -S www-data \
+    && adduser -u 82 -D -S -G www-data www-data
 
 RUN curl --insecure https://getcomposer.org/composer.phar -o /usr/bin/composer && chmod +x /usr/bin/composer
 
-ADD symfony.ini /etc/php7/php-fpm.d/
-ADD symfony.ini /etc/php7/cli/conf.d/
+COPY symfony.ini /etc/php7/php-fpm.d/symfony.ini
+COPY symfony.ini /etc/php7/cli/conf.d/symfony.ini
 
-ADD symfony.pool.conf /etc/php7/php-fpm.d/
+COPY symfony.pool.conf /etc/php7/php-fpm.d/symfony.pool.conf
 
 CMD ["php-fpm7", "-F"]
 
-WORKDIR /var/www/symfony
+WORKDIR /var/www
 EXPOSE 9000
